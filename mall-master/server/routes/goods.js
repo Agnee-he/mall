@@ -25,7 +25,7 @@ mongoose.connection.on("disconnected", function () {
 });
 
 // 查询商品列表数据
-router.get("/", function (req, res, next) {
+router.get("/list", function (req, res, next) {
   let sort = req.param("sort"); // req.param可以接受前端传过来的数据
   let page = parseInt(req.param("page"));
   let pageSize = parseInt(req.param("pageSize"));
@@ -34,6 +34,7 @@ router.get("/", function (req, res, next) {
   let skip = (page-1)*pageSize;
   let params = {};
 
+  console.log(priceLevel);
   if (priceLevel!=='all') {
     switch (priceLevel) {
       case '0':priceGt = 0;priceLte = 100;break;

@@ -154,10 +154,22 @@
         userName: '',
         userPwd: '',
         errorTip: false,
-        loginModalFlag: false
+        loginModalFlag: false,
+        nickName: ''
       }
     },
+    mounted() {
+      this.checkLogin();
+    },
     methods: {
+      checkLogin() {
+        axios.get("/users/checkLogin").then((response)=>{
+          let res = response.data;
+          if (res.status === '0') {
+            this.nickName = res.result;
+          }
+        })
+      },
       login() {
         if (!this.userName || !this.userPwd) {
           this.errorTip = true;
@@ -172,10 +184,19 @@
             console.log('登录成功');
             this.errorTip = false;
             this.loginModalFlag = false;
+            this.nickName = res.result.userName;
           } else {
             this.errorTip = true;
           }
         });
+      },
+      logOut() {
+        axios.post("/users/logout").then((response)=> {
+          let res = response.data;
+          if (res.status === "0") {
+            this.nickName = '';
+          }
+        })
       }
     }
   }
