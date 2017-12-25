@@ -94,7 +94,7 @@
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
-                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item.productId)">
+                    <a href="javascript:;" class="item-edit-btn" @click="delCartConfirm(item)">
                       <svg class="icon icon-del">
                         <use xlink:href="#icon-del"></use>
                       </svg>
@@ -175,7 +175,8 @@
         return{
           cartList: [],
           productId: '',
-          modalConfirm: false
+          modalConfirm: false,
+          delItem: []
         }
       },
       mounted() {
@@ -192,7 +193,6 @@
           this.cartList.forEach((item)=>{
             if (item.checked === '1') i++;
           })
-          console.log(i);
           return i;
         },
         totalPrice() {
@@ -221,27 +221,28 @@
         closeModal() {
           this.modalConfirm = false;
         },
-        delCartConfirm(productId) {
-          this.productId = productId;
+        delCartConfirm(item) {
+          console.log(item);
+          this.delItem = item;
           this.modalConfirm = true;
         },
         delCart() {
           axios.post("/users/cartDel",{
-            productId: this.productId
+            productId: this.delItem.productId
           }).then((response)=>{
             let res = response.data;
             if (res.status === '0') {
               this.modalConfirm = false;
-              console.log(this.modalConfirm);
               this.init();
+              this.$store.commit("updateCartCount", -this.delItem.productNum);
             }
           })
         },
         editCart(flag, item) {
           if (flag === 'add') {
             item.productNum ++;
-          } else if (flag === 'mimu') {
-            if (item.productNum<=1) {
+          } else if (flag === 'minu') {
+            if (item.productNum <= 1) {
               return;
             }
             item.productNum --;
@@ -254,6 +255,13 @@
             checked: item.checked
           }).then((response)=> {
             let res = response.data;
+            let num = 0;
+            if (flag === 'add') {
+              num = 1;
+            } else if (flag === 'minu') {
+              num = -1;
+            }
+            this.$store.commit("updateCartCount", num);
           })
         },
         toggleCheckAll() {

@@ -147,6 +147,7 @@
 <script>
   import './../assets/css/login.css'
   import axios from 'axios'
+  import { mapState } from 'vuex'
 
   export default{
     data() {
@@ -154,9 +155,17 @@
         userName: '',
         userPwd: '',
         errorTip: false,
-        loginModalFlag: false,
-        nickName: ''
+        loginModalFlag: false
       }
+    },
+    computed: {
+      ...mapState(['nickName', 'cartCount'])
+//      nickName() {
+//        return this.$store.state.nickName;
+//      },
+//      cartCount() {
+//        return this.$store.state.cartCount;
+//      }
     },
     mounted() {
       this.checkLogin();
@@ -166,7 +175,9 @@
         axios.get("/users/checkLogin").then((response)=>{
           let res = response.data;
           if (res.status === '0') {
-            this.nickName = res.result;
+//            this.nickName = res.result;
+            this.$store.commit("updateUserInfo", res.result);
+            this.getCartCount();
           }
         })
       },
@@ -184,7 +195,8 @@
             console.log('登录成功');
             this.errorTip = false;
             this.loginModalFlag = false;
-            this.nickName = res.result.userName;
+            this.$store.commit("updateUserInfo", res.result.nickName);
+            this.getCartCount();
           } else {
             this.errorTip = true;
           }
@@ -194,9 +206,15 @@
         axios.post("/users/logout").then((response)=> {
           let res = response.data;
           if (res.status === "0") {
-            this.nickName = '';
+            this.$store.commit("updateUserInfo", '');
           }
         })
+      },
+      getCartCount() {
+        axios.get("/users/getCartCount").then((response)=>{
+          let res = response.data;
+          this.$store.commit("initCartCount", res.result);
+        });
       }
     }
   }
